@@ -23,7 +23,7 @@ Session(app)
 Markdown(app)
 bcrypt = Bcrypt(app)
 
-port = int(os.getenv('PORT', 80))
+port = int(os.getenv('PORT', 8000))
 
 
 routes.AddRoutes(app, mongo.db, bcrypt)
