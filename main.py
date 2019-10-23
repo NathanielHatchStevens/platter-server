@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_session import Session
 from flaskext.markdown import Markdown
-from flask.ext.bcrypt import Bcrypt
+from flask_bcrypt import Bcrypt
 import atexit
 import os
 import json
