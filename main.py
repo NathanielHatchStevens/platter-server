@@ -16,7 +16,6 @@ import routes
 
 app = Flask(__name__, static_url_path='')
 # app.config.
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipes'
 app.secret_key = 'DO NOT CHANGE ME; I AM A PERFECTLY ADEQUATE SECRET KEY. LOOK HOW WONDERFULLY LONG I AM. I DON\'T REALLY KNOW HOW THIS WORKS'
 app.config['SESSION_TYPE'] = 'filesystem'
 mongo = PyMongo(app)
@@ -45,6 +44,13 @@ except:
 print('Debug: '+str(debug))
 print('IP: ' + ip)
 print('Port: ' + str(port))
+
+localdev = False
+
+if localdev:
+	app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipes'
+else:
+	app.config['MONGO_URI'] = 'mongodb://13.211.229.170:21017/recipes'
 
 
 routes.AddRoutes(app, mongo.db, bcrypt)
