@@ -24,10 +24,27 @@ Session(app)
 Markdown(app)
 bcrypt = Bcrypt(app)
 
-if len(sys.argv) > 1:
-	port = int(sys.argv[1])
-else:
-	port = 8000
+# arg 0: filename
+# arg 1: debug
+# arg 2: ip
+# arg 3: port
+
+debug = False
+ip = '0.0.0.0'
+port = 8000
+
+try:
+	if sys.argv[1] == 'debug':
+		debug = True
+	
+	ip = sys.argv[2]
+	port = int(sys.argv[3])
+except:
+	pass
+		
+print('Debug: '+str(debug))
+print('IP: ' + ip)
+print('Port: ' + str(port))
 
 
 routes.AddRoutes(app, mongo.db, bcrypt)
@@ -40,4 +57,4 @@ def shutdown():
 	
 	
 if __name__ == '__main__':
-	 app.run(host='0.0.0.0', port=port, debug=True)
+	 app.run(host=ip, port=port, debug=debug)
