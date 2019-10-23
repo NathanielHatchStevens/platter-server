@@ -13,6 +13,10 @@ from .authentication import AuthenticationRoutes
 def AddRoutes(app, db, bcrypt):
 
 	AuthenticationRoutes(app, db, bcrypt)
+	
+	@app.route('/about', methods=['GET'])
+	def About():
+		return "This is the about page"
 
 	@app.route('/', methods=['GET'])
 	@app.route('/index', methods=['GET'])
