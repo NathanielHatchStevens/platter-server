@@ -23,7 +23,7 @@ Session(app)
 Markdown(app)
 bcrypt = Bcrypt(app)
 
-port = int(os.getenv('PORT', 8000))
+port = int(os.getenv('PORT', 80))
 
 
 routes.AddRoutes(app, mongo.db, bcrypt)
@@ -36,4 +36,5 @@ def shutdown():
 	
 	
 if __name__ == '__main__':
-	 app.run(host='0.0.0.0', port=port, debug=True)
+	 app.run(host='0.0.0.0', port=port)
+	 # app.run(host='0.0.0.0', port=port, debug=True)
