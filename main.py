@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 import atexit
 import os
 import json
+import sys
 
 from dotmap import DotMap
 from flask_pymongo import PyMongo
@@ -23,7 +24,10 @@ Session(app)
 Markdown(app)
 bcrypt = Bcrypt(app)
 
-port = int(os.getenv('PORT', 8000))
+if len(sys.argv) > 1:
+	port = int(sys.argv[1])
+else:
+	port = 8000
 
 
 routes.AddRoutes(app, mongo.db, bcrypt)
