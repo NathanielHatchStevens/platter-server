@@ -16,6 +16,7 @@ def AddRoutes(app, db, bcrypt):
 	
 	@app.route('/about', methods=['GET'])
 	def About():
+		return db.recipes.find_one()
 		return "This is the about page"
 
 	@app.route('/', methods=['GET'])
@@ -27,6 +28,8 @@ def AddRoutes(app, db, bcrypt):
 		for r in results:
 			data['recipes'].append({'name': r['title'], 'id': str(r['_id'])})
 			# print(data[-1])
+		
+		
 		
 		return render_template('recipes.html', data = data)
 		
