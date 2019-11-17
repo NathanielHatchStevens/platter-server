@@ -1,6 +1,6 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-
 from dotmap import DotMap
+import bcrypt
 
 def ComparePassword(submitted, stored):
 	if submitted == stored:
@@ -8,7 +8,7 @@ def ComparePassword(submitted, stored):
 	else:
 		return False
 
-def AuthenticationRoutes(app, db, bcrypt):
+def AuthenticationRoutes(app, db):
 	public_urls = ['/login', 
 						'/register',
 						'/about',
@@ -48,23 +48,29 @@ def AuthenticationRoutes(app, db, bcrypt):
 		})
 		
 		# Check username exists
-		result = db.users.find_one({'name': submission.username})
-		if result == None:
+		query = db.users.find_one({'name': submission.username})
+		if query == None:
 			flash('No such username.', 'alert-warning')
 			return redirect(url_for('Login'))
 		
-		result = DotMap(result)
+		query = DotMap(query)
 		
+		match = False
 		# Check password matches
-		if result.pwd != submission.password and bcrypt.check_password_hash(result.pwd, submission.password.encode('utf-8')) == False:
+		if query.pwd == submission.password:
+			print("Warning: User '"+submission.username+"' is using an unhashed password.")
+			match = True		
+		
+		if bcrypt.checkpw(query.pwd, submission.password) == True:
+			match = True
+		
+		if match == False:
 			flash('Incorrect password.', 'alert-warning')
 			return redirect(url_for('Login'))
 			#have to decode and recode into utf-8 but not sure where, shoudl also hash passwords
 		
 		# Save session details
-		session['id'] = result._id
-		session['username'] = result.name
-		session['permanent'] = submission.remember_me
+		CreateSession(query._id, query.name, submission.remember_me)
 		
 		return redirect(url_for('RecipeBook'))		
 		
@@ -85,26 +91,26 @@ def AuthenticationRoutes(app, db, bcrypt):
 			return redirect(url_for('Login'))
 			
 		
-		db.users.insert_one({
+		result = db.users.insert_one({
 			'name': username,
-			'pwd': password
+			# 'pwd' : password
+			'pwd': bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt())
 		})
 		
-		return redirect(url_for('Login'), code=307)
-		# cur.execute('SELECT * FROM user WHERE name="'+sub_username+'"')
-		# result = cur.fetchone()
-		# if result != None:
-			# flash('Username taken.', 'alert-warning')
-			# return redirect(url_for('login'))
-		# else:
-			# cur.execute('INSERT INTO user (name, password) VALUES ("'+sub_username+'", "'+sub_password+'")')
-			# db.commit()
-			# cur.execute('SELECT * FROM user WHERE name="'+sub_username+'"')
-			# (id,_,_,_) = cur.fetchone()
-			# session['username']=sub_username
-			# session['id']=id
-			# return redirect(url_for('recipes'))
+		print(result)
+		
+		if result.acknowledged:
+			CreateSession(result.inserted_id, username, False);
+			return redirect(url_for('RecipeBook'))
+		else:
+			flash('Registration failed, website coder bad?')
+			return redirect(url_for('Login'))
 	
+	def CreateSession(id, username, remember_me):
+		session['id'] = id
+		session['username'] = username
+		session['permanent'] = remember_me
+		
 	# @app.route('/create_temporary_account', methods=['POST'])
 	# def CreateTemporaryAccount():
 		# cur.execute('INSERT INTO user (name, password, trial) VALUES ("temp", "Trial Account", 1)')

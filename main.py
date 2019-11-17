@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_session import Session
 from flaskext.markdown import Markdown
-from flask_bcrypt import Bcrypt
 import atexit
 import os
 import json
@@ -24,25 +23,11 @@ debug = False
 ip = '0.0.0.0'
 port = 8000
 
-localdev = False
-
-if localdev:
-	app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipes'
-else:
-	print("Warning: Password not secure")
-	app.config['MONGO_URI'] = 'mongodb://13.211.229.171:21017/recipes'
-	app.config['MONGO_USERNAME'] = 'recipes'
-	app.config['MONGO_PASSWORD'] = 'password'
-	
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipes'
 	
 mongo = PyMongo(app)
-print(mongo.db.users.find()[0])
-# print(str(mongo.pymongo))
-# print(str(mongo.mongo_client.server_info()))
-
 Session(app)
 Markdown(app)
-bcrypt = Bcrypt(app)
 
 
 # arg 0: filename
@@ -65,7 +50,7 @@ print('Port: ' + str(port))
 
 
 
-routes.AddRoutes(app, mongo.db, bcrypt)
+routes.AddRoutes(app, mongo.db)
 		  
 
 @atexit.register

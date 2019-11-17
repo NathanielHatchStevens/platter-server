@@ -1,4 +1,4 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Markup
+from flask import Flask, request, session, redirect, url_for, render_template, flash, Markup
 import json
 import requests
 from dotmap import DotMap
@@ -10,13 +10,12 @@ from recipetomarkdown import ParseRecipe
 from .authentication import AuthenticationRoutes
 # from flask_misaka import markdown
 
-def AddRoutes(app, db, bcrypt):
+def AddRoutes(app, db):
 
-	AuthenticationRoutes(app, db, bcrypt)
+	AuthenticationRoutes(app, db)
 	
 	@app.route('/about', methods=['GET'])
 	def About():
-		return db.recipes.find_one()
 		return "This is the about page"
 
 	@app.route('/', methods=['GET'])
