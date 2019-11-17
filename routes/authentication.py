@@ -59,12 +59,8 @@ def AuthenticationRoutes(app, db):
 		# Check password matches
 		if query.pwd == submission.password:
 			print("Warning: User '"+submission.username+"' is using an unhashed password.")
-			match = True		
-		print(query.pwd)
-		print(submission.password)
-		print(submission.password.encode('utf-8'))
-		
-		if bcrypt.checkpw(submission.password.encode('utf-8'), query.pwd) == True:
+			match = True
+		elif bcrypt.checkpw(submission.password.encode('utf-8'), query.pwd) == True:
 			match = True
 		
 		if match == False:
