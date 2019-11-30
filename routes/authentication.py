@@ -1,6 +1,10 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from dotmap import DotMap
 import bcrypt
+import json
+import jwt
+
+key = 'another teirrible secret that shoudl be changed'
 
 def ComparePassword(submitted, stored):
 	if submitted == stored:
@@ -10,12 +14,19 @@ def ComparePassword(submitted, stored):
 
 def AuthenticationRoutes(app, db):
 	public_urls = ['/login', 
+						'/plugin_login',
 						'/register',
 						'/about',
 						'/create_temporary_account']
 
 	@app.before_request
 	def CheckUserAuth():
+		print('Checking User Auth')
+		# print(request.get_json())
+		post_json = request.get_json()
+		token = post_json['token'] if 'token' in post_json else None
+		# 
+		
 		split_path = request.path.split('/')
 		
 		is_public_static_file = len(split_path) >= 3 and 'public' == split_path[2]
@@ -29,6 +40,12 @@ def AuthenticationRoutes(app, db):
 		elif is_public_static_file:
 			# print('Static file:' + request.path)
 			return None
+		elif token is not None:
+			decoded = jwt.decode(bytes(token[2:-1], 'utf-8'), key, algorithms=['HS256'])
+			print(decoded)
+			# print(len(token))
+			return None
+			
 		else:
 			return redirect(url_for('Login'))
 
@@ -72,7 +89,21 @@ def AuthenticationRoutes(app, db):
 		CreateSession(query._id, query.name, submission.remember_me)
 		
 		return redirect(url_for('RecipeBook'))		
+	
+	@app.route('/plugin_login', methods=['POST'])
+	def PluginLogin():
+		data = json.loads(str(request.data.decode('utf-8')))
+		query = db.users.find_one({'name': data['username']})
 		
+		if query == None:
+			return json.dumps({'success':False, 'reason':'Username not found: '+data['username']})
+			
+	
+		if query['pwd'] == data['password'] or bcrypt.checkpw(data['password'].encode('utf-8'), query['pwd']) == True:
+			token = jwt.encode({'id': str(query['_id'])}, key, algorithm='HS256')
+			return json.dumps({'success':True, 'token':str(token)})
+		else:
+			return json.dumps({'success':False, 'reason':'Password mismatch'})
 		
 	@app.route('/logout', methods=['GET', 'POST'])
 	def logout():
@@ -92,11 +123,8 @@ def AuthenticationRoutes(app, db):
 		
 		result = db.users.insert_one({
 			'name': username,
-			# 'pwd' : password
 			'pwd': bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt())
 		})
-		
-		print(result)
 		
 		if result.acknowledged:
 			CreateSession(result.inserted_id, username, False);
@@ -110,15 +138,4 @@ def AuthenticationRoutes(app, db):
 		session['username'] = username
 		session['permanent'] = remember_me
 		
-	# @app.route('/create_temporary_account', methods=['POST'])
-	# def CreateTemporaryAccount():
-		# cur.execute('INSERT INTO user (name, password, trial) VALUES ("temp", "Trial Account", 1)')
-		# db.commit()
-		# cur.execute('SELECT * FROM user ORDER BY id DESC LIMIT 1')
-		# (id, _, _, _) = cur.fetchall()[0]
-		
-		# session['username'] = 'Trial Account'
-		# session['id'] = id
-		# session['trial'] = True
-		
-		# return redirect(url_for('AddNewRecipe'))
+	# def CheckIfLoginDetailsMatchCurrentSession(

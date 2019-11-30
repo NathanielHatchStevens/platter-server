@@ -44,17 +44,17 @@ def AddRoutes(app, db):
 
 	@app.route('/submit_recipe', methods=['POST'])
 	def SubmitRecipe():
-		success = False
+		# success = False
 		
-		result = DotMap(request.get_json())
-		recipe = {
-			'title': result.title,
-			'body': ParseRecipe(result),
-			'owner': ObjectId(result.owner),
-			'url': result.url
-			}
-		print(recipe)
-		db.recipes.insert_one(recipe)
+		# result = DotMap(request.get_json())
+		# recipe = {
+			# 'title': result.title,
+			# 'body': ParseRecipe(result),
+			# 'owner': ObjectId(result.owner),
+			# 'url': result.url
+			# }
+		# print(recipe)
+		# db.recipes.insert_one(recipe)
 		
 		return "return"
 		
