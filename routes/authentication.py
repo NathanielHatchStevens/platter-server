@@ -21,33 +21,27 @@ def AuthenticationRoutes(app, db):
 
 	@app.before_request
 	def CheckUserAuth():
-		print('Checking User Auth')
-		# print(request.get_json())
 		post_json = request.get_json()
-		token = post_json['token'] if 'token' in post_json else None
-		# 
-		
+		token = None
+		if post_json is not None:
+			token = post_json['token'] if 'token' in post_json else None
+			
 		split_path = request.path.split('/')
 		
 		is_public_static_file = len(split_path) >= 3 and 'public' == split_path[2]
 		
-		if ('id' in session):
-			# print('Logged in')
-			return None
-		elif request.path in public_urls:
-			# print('Public URL:' + request.path)
-			return None
-		elif is_public_static_file:
-			# print('Static file:' + request.path)
-			return None
-		elif token is not None:
+		if token is not None:
 			decoded = jwt.decode(bytes(token[2:-1], 'utf-8'), key, algorithms=['HS256'])
-			print(decoded)
-			# print(len(token))
+			request.user_id = decoded['id']
 			return None
-			
-		else:
-			return redirect(url_for('Login'))
+		if ('id' in session):
+			return None
+		if request.path in public_urls:
+			return None
+		if is_public_static_file:
+			return None
+		
+		return redirect(url_for('Login'))
 
 	@app.route('/login', methods=['GET'])
 	def Login():

@@ -44,17 +44,19 @@ def AddRoutes(app, db):
 
 	@app.route('/submit_recipe', methods=['POST'])
 	def SubmitRecipe():
-		# success = False
-		
-		# result = DotMap(request.get_json())
-		# recipe = {
-			# 'title': result.title,
-			# 'body': ParseRecipe(result),
-			# 'owner': ObjectId(result.owner),
-			# 'url': result.url
-			# }
+		# return 'short circuited'
+		if db.users.find_one({'_id': ObjectId(request.user_id)}) is None:
+			return False
+			
+		result = request.get_json()
+		recipe = {
+			'title': result['title'],
+			'body': ParseRecipe(result),
+			'owner': ObjectId(request.user_id),
+			'url': result['url']
+		}
 		# print(recipe)
-		# db.recipes.insert_one(recipe)
+		db.recipes.insert_one(recipe)
 		
 		return "return"
 		

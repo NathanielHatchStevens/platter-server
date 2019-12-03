@@ -13,10 +13,10 @@ def MarkdownSubsection(name, subsection):
 	output+= h2+name+newline
 		
 	for item in subsection:
-		if item.subheading == True:
-			output+= h3+item.line+newline
+		if item['subheading'] == True:
+			output+= h3+item['line']+newline
 		else:
-			output+= li+item.line+newline
+			output+= li+item['line']+newline
 
 	output+= newline
 	
@@ -27,11 +27,11 @@ def ParseRecipe(recipe):
 	output = ''
 	
 	# title
-	output+= h1+recipe.title+newline*2
+	output+= h1+recipe['title']+newline*2
 	
 	# body	
-	output+= MarkdownSubsection('Ingredients', recipe.ingredients)
-	output+= MarkdownSubsection('Method', recipe.method)
+	output+= MarkdownSubsection('Ingredients', recipe['ingredients'])
+	output+= MarkdownSubsection('Method', recipe['method'])
 	
 	return output
 	
