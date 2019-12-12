@@ -106,15 +106,14 @@ def AuthenticationRoutes(app, db):
 			
 
 	@app.route('/register', methods=['POST'])
-	def register():
+	def RegisterNewAccount():
 		username = request.form['username']
 		password = request.form['password']
 		
 		if db.users.find_one({'name': username}) != None:
 			flash('Username "'+username+'" already exists')
 			return redirect(url_for('Login'))
-			
-		
+					
 		result = db.users.insert_one({
 			'name': username,
 			'pwd': bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt())
