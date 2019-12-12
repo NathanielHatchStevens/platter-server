@@ -20,6 +20,11 @@ def AuthenticationRoutes(app, db):
 						'/create_temporary_account']
 
 	@app.before_request
+	def Debugging():
+		print(request.url)
+		return None
+
+	@app.before_request
 	def CheckUserAuth():
 		post_json = request.get_json()
 		token = None
