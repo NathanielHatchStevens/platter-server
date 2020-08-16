@@ -6,7 +6,6 @@ import os
 import json
 import sys
 
-from dotmap import DotMap
 from flask_pymongo import PyMongo
 
 from recipetomarkdown import ParseRecipe

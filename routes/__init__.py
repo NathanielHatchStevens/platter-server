@@ -1,7 +1,5 @@
 from flask import Flask, request, session, redirect, url_for, render_template, flash, Markup
 import json
-import requests
-from dotmap import DotMap
 
 from bson.objectid import ObjectId
 

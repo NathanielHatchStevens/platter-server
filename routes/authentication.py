@@ -1,5 +1,4 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from dotmap import DotMap
 import bcrypt
 import json
 import jwt
@@ -18,11 +17,6 @@ def AuthenticationRoutes(app, db):
 						'/register',
 						'/about',
 						'/create_temporary_account']
-
-	@app.before_request
-	def Debugging():
-		print(request.url)
-		return None
 
 	@app.before_request
 	def CheckUserAuth():
@@ -57,26 +51,24 @@ def AuthenticationRoutes(app, db):
 			
 	@app.route('/login', methods=['POST'])
 	def SubmitLogin():
-		submission = DotMap({
+		submission = {
 			'username': request.form['username'],
 			'password': request.form['password'],
 			'remember_me': True if 'rememberme' in request.form else False
-		})
+		}
 		
 		# Check username exists
-		query = db.users.find_one({'name': submission.username})
+		query = db.users.find_one({'name': submission['username']})
 		if query == None:
 			flash('No such username.', 'alert-warning')
 			return redirect(url_for('Login'))
 		
-		query = DotMap(query)
-		
 		match = False
 		# Check password matches
-		if query.pwd == submission.password:
-			print("Warning: User '"+submission.username+"' is using an unhashed password.")
+		if query['pwd'] == submission['password']:
+			print("Warning: User '"+submission['username']+"' is using an unhashed password.")
 			match = True
-		elif bcrypt.checkpw(submission.password.encode('utf-8'), query.pwd) == True:
+		elif bcrypt.checkpw(submission['password'].encode('utf-8'), query['pwd']) == True:
 			match = True
 		
 		if match == False:
@@ -91,9 +83,12 @@ def AuthenticationRoutes(app, db):
 	
 	@app.route('/plugin_login', methods=['POST'])
 	def PluginLogin():
+		print('plugin_login')
 		data = json.loads(str(request.data.decode('utf-8')))
 		query = db.users.find_one({'name': data['username']})
 		
+		print(data)
+		print(query)
 		if query == None:
 			return json.dumps({'success':False, 'reason':'Username not found: '+data['username']})
 			
