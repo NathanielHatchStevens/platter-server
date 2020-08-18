@@ -77,7 +77,7 @@ def AuthenticationRoutes(app, db):
 			#have to decode and recode into utf-8 but not sure where, shoudl also hash passwords
 		
 		# Save session details
-		CreateSession(query._id, query.name, submission.remember_me)
+		CreateSession(query['_id'], query['name'], submission['remember_me'])
 		
 		return redirect(url_for('RecipeBook'))		
 	

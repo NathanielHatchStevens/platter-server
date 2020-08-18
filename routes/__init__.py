@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, url_for, render_template, flash, Markup
+from flask import Flask, request, session, redirect, url_for, render_template, flash, Markup, jsonify
 import json
 
 from bson.objectid import ObjectId
@@ -42,9 +42,8 @@ def AddRoutes(app, db):
 
 	@app.route('/submit_recipe', methods=['POST'])
 	def SubmitRecipe():
-		# return 'short circuited'
 		if db.users.find_one({'_id': ObjectId(request.user_id)}) is None:
-			return False
+			return jsonify({'success': False})
 			
 		result = request.get_json()
 		recipe = {
@@ -53,10 +52,9 @@ def AddRoutes(app, db):
 			'owner': ObjectId(request.user_id),
 			'url': result['url']
 		}
-		# print(recipe)
 		db.recipes.insert_one(recipe)
 		
-		return "return"
+		return jsonify({'success': True})
 		
 	@app.route('/delete_recipe/<id>', methods=['GET'])
 	def DeleteRecipe(id):
@@ -70,8 +68,6 @@ def AddRoutes(app, db):
 			return render_template('edit_recipe.html', data = {'recipe': recipe})
 			
 		else:
-			#request.method == 'POST'
-			# print(request.form['title'])
 			db.recipes.update(
 				{'owner': session['id'], '_id': ObjectId(id)},
 				{

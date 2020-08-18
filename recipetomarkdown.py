@@ -25,10 +25,7 @@ def MarkdownSubsection(name, subsection):
 
 def ParseRecipe(recipe):
 	output = ''
-	
-	# title
-	output+= h1+recipe['title']+newline*2
-	
+		
 	# body	
 	output+= MarkdownSubsection('Ingredients', recipe['ingredients'])
 	output+= MarkdownSubsection('Method', recipe['method'])
