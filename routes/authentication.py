@@ -13,10 +13,11 @@ def ComparePassword(submitted, stored):
 
 def AuthenticationRoutes(app, db):
 	public_urls = ['/login', 
-						'/plugin_login',
-						'/register',
-						'/about',
-						'/create_temporary_account']
+					'/plugin_login',
+					'/register',
+					'/about',
+					'/create_temporary_account',
+					'/server_test']
 
 	@app.before_request
 	def CheckUserAuth():
@@ -30,7 +31,8 @@ def AuthenticationRoutes(app, db):
 		is_public_static_file = len(split_path) >= 3 and 'public' == split_path[2]
 		
 		if token is not None:
-			decoded = jwt.decode(bytes(token[2:-1], 'utf-8'), key, algorithms=['HS256'])
+			# decoded = jwt.decode(bytes(token[2:-1], 'utf-8'), key, algorithms=['HS256'])
+			decoded = jwt.decode(bytes(token, 'utf-8'), key, algorithms=['HS256'])
 			request.user_id = decoded['id']
 			return None
 		if ('id' in session):
@@ -90,6 +92,7 @@ def AuthenticationRoutes(app, db):
 		print(data)
 		print(query)
 		if query == None:
+			print(data)
 			return json.dumps({'success':False, 'reason':'Username not found: '+data['username']})
 			
 	
@@ -104,7 +107,6 @@ def AuthenticationRoutes(app, db):
 		session.clear()
 		return redirect(url_for('Login'))
 			
-
 	@app.route('/register', methods=['POST'])
 	def RegisterNewAccount():
 		username = request.form['username']
@@ -130,5 +132,3 @@ def AuthenticationRoutes(app, db):
 		session['id'] = id
 		session['username'] = username
 		session['permanent'] = remember_me
-		
-	# def CheckIfLoginDetailsMatchCurrentSession(

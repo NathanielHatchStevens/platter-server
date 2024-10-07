@@ -13,11 +13,14 @@ def MarkdownSubsection(name, subsection):
 	output+= h2+name+newline
 		
 	for item in subsection:
-		if item['subheading'] == True:
-			output+= h3+item['line']+newline
-		else:
-			output+= li+item['line']+newline
-
+		print('What is item?')
+		print(item)
+		output+= li+item+newline
+		# if item['subheading'] == True:
+			# output+= h3+item['line']+newline
+		# else:
+			# output+= li+item['line']+newline
+			
 	output+= newline
 	
 	return output

@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, url_for, render_template, flash, Markup, jsonify
+from flask import Flask, request, session, redirect, url_for, render_template, flash, Markup, jsonify, Response
 import json
 
 from bson.objectid import ObjectId
@@ -12,6 +12,13 @@ def AddRoutes(app, db):
 
 	AuthenticationRoutes(app, db)
 	
+	@app.route('/server_test', methods=['POST'])
+	def ServerTest():
+		data = jsonify({'server_test': True})
+		print('Server test returning:')
+		print(data)
+		return data
+	
 	@app.route('/about', methods=['GET'])
 	def About():
 		return "This is the about page"
@@ -24,9 +31,6 @@ def AddRoutes(app, db):
 		results = db.recipes.find({'owner': session['id']})
 		for r in results:
 			data['recipes'].append({'name': r['title'], 'id': str(r['_id'])})
-			# print(data[-1])
-		
-		
 		
 		return render_template('recipes.html', data = data)
 		
@@ -44,7 +48,8 @@ def AddRoutes(app, db):
 	def SubmitRecipe():
 		if db.users.find_one({'_id': ObjectId(request.user_id)}) is None:
 			return jsonify({'success': False})
-			
+		
+		
 		result = request.get_json()
 		recipe = {
 			'title': result['title'],
@@ -52,9 +57,9 @@ def AddRoutes(app, db):
 			'owner': ObjectId(request.user_id),
 			'url': result['url']
 		}
-		db.recipes.insert_one(recipe)
-		
-		return jsonify({'success': True})
+		insert_result = db.recipes.insert_one(recipe)
+		print(insert_result.inserted_id)
+		return jsonify({'success': True, 'recipe_id': str(insert_result.inserted_id)})
 		
 	@app.route('/delete_recipe/<id>', methods=['GET'])
 	def DeleteRecipe(id):
